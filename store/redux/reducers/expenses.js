@@ -44,8 +44,4 @@ export const ExpensesActions = {
   delete: expensesSlice.actions.delete,
 };
 
-export const ExpensesSelectors = {
-  getExpenses: (state) => state.data,
-};
-
 export default expensesSlice.reducer;

@@ -22,6 +22,16 @@ export default function App() {
                 backgroundColor: Colors.primary500,
               },
               headerTintColor: 'white',
+              headerRight: ({ tintColor }) => (
+                <MaterialCommunityIcons
+                  name='plus'
+                  size={24}
+                  color={tintColor}
+                />
+              ),
+              headerRightContainerStyle: {
+                paddingRight: 16,
+              },
               tabBarStyle: {
                 backgroundColor: Colors.primary500,
               },
@@ -40,7 +50,8 @@ export default function App() {
               name='recent-expenses'
               component={RecentExpenses}
               options={{
-                title: 'Recent',
+                tabBarLabel: 'Recent',
+                title: 'Recent Expenses',
                 tabBarIcon: ({ color, size }) => (
                   <MaterialCommunityIcons
                     name='timer-sand-complete'

@@ -5,6 +5,6 @@ export class Expense {
     this.id = uuid.v4();
     this.description = description;
     this.value = value;
-    this.createdAt = new Date(Date.now);
+    this.createdAt = new Date(Date.now());
   }
 }
