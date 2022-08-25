@@ -14,25 +14,27 @@ export function HeaderRight({ tintColor }) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.iconOuterContainer}>
-        <Pressable
-          style={({ pressed }) =>
-            pressed
-              ? [styles.iconInnerContainer, styles.pressed] // For IOS pressed
-              : styles.iconInnerContainer
-          }
-          android_ripple={{ color: Colors.secondary500 }}
-          onPress={toggleCreateModal}
-        >
-          <MaterialCommunityIcons name='plus' size={24} color={tintColor} />
-        </Pressable>
+    <>
+      <View style={styles.container}>
+        <View style={styles.iconOuterContainer}>
+          <Pressable
+            style={({ pressed }) =>
+              pressed
+                ? [styles.iconInnerContainer, styles.pressed] // For IOS pressed
+                : styles.iconInnerContainer
+            }
+            android_ripple={{ color: Colors.secondary500 }}
+            onPress={toggleCreateModal}
+          >
+            <MaterialCommunityIcons name='plus' size={24} color={tintColor} />
+          </Pressable>
+        </View>
       </View>
       <CreateExpense
         visible={createModalVisibility}
         onCancel={toggleCreateModal}
       />
-    </View>
+    </>
   );
 }
 

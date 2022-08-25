@@ -1,44 +1,64 @@
+import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import moment from 'moment';
 import NumberFormat from 'react-number-format';
 
 import { Colors } from '../../constants';
+import { UpdateExpense } from './UpdateExpense';
 
 function toDateString(date) {
   return moment(date).format('YYYY-MM-DD');
 }
 
 export function ExpenseItem({ expense }) {
+  const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
+
+  function toggleUpdateModal() {
+    setUpdateModalVisibility(!updateModalVisibility);
+  }
+
   return (
-    <View style={styles.container}>
-      <Pressable
-        style={({ pressed }) =>
-          pressed
-            ? [styles.innerContainer, styles.pressed] // For IOS pressed
-            : styles.innerContainer
-        }
-        android_ripple={{ color: Colors.secondary500 }}
-      >
-        <View style={styles.leftDetailContainer}>
-          <Text style={styles.descriptionText}>{expense.description}</Text>
-          <Text style={styles.dateText}>{toDateString(expense.createdAt)}</Text>
-        </View>
-        <View style={styles.rightDetailContainer}>
-          <NumberFormat
-            value={expense.value}
-            displayType='text'
-            prefix='$'
-            thousandSeparator={true}
-            decimalScale={2}
-            fixedDecimalScale={true}
-            renderText={(value) => (
-              <Text style={styles.valueText}>{value}</Text>
-            )}
-          />
-        </View>
-      </Pressable>
-    </View>
+    <>
+      <View style={styles.container}>
+        <Pressable
+          style={({ pressed }) =>
+            pressed
+              ? [styles.innerContainer, styles.pressed] // For IOS pressed
+              : styles.innerContainer
+          }
+          android_ripple={{ color: Colors.secondary500 }}
+          onPress={toggleUpdateModal}
+        >
+          <View style={styles.leftDetailContainer}>
+            <Text style={styles.descriptionText}>{expense.description}</Text>
+            <Text style={styles.dateText}>
+              {toDateString(expense.createdAt)}
+            </Text>
+          </View>
+          <View style={styles.rightDetailContainer}>
+            <NumberFormat
+              value={expense.value}
+              displayType='text'
+              prefix='$'
+              thousandSeparator={true}
+              decimalScale={2}
+              fixedDecimalScale={true}
+              renderText={(value) => (
+                <Text style={styles.valueText}>{value}</Text>
+              )}
+            />
+          </View>
+        </Pressable>
+      </View>
+      {updateModalVisibility ? (
+        <UpdateExpense
+          visible={updateModalVisibility}
+          expense={expense}
+          onCancel={toggleUpdateModal}
+        />
+      ) : null}
+    </>
   );
 }
 

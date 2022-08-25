@@ -17,11 +17,11 @@ const expensesSlice = createSlice({
     },
     update: (state, action) => {
       const { id, description, value } = action.payload;
-      const expense = state.data.find((expense) => expense.id === id);
+      const expenseIndex = state.data.findIndex((expense) => expense.id === id);
 
-      if (expense) {
-        expense = {
-          ...expense,
+      if (expenseIndex !== -1) {
+        state.data[expenseIndex] = {
+          id,
           description,
           value,
         };
@@ -29,7 +29,7 @@ const expensesSlice = createSlice({
     },
     delete: (state, action) => {
       const id = action.payload.id;
-      const expenseIndex = state.data.indexOf((expense) => expense.id === id);
+      const expenseIndex = state.data.findIndex((expense) => expense.id === id);
 
       if (expenseIndex !== -1) {
         state.data.splice(expenseIndex, 1);
