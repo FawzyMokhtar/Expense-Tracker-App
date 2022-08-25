@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { store } from './store';
 import { Colors } from './constants';
 import { RecentExpenses, AllExpenses } from './screens';
+import { HeaderRight } from './components';
 
 const Tabs = createBottomTabNavigator();
 
@@ -23,15 +24,8 @@ export default function App() {
               },
               headerTintColor: 'white',
               headerRight: ({ tintColor }) => (
-                <MaterialCommunityIcons
-                  name='plus'
-                  size={24}
-                  color={tintColor}
-                />
+                <HeaderRight tintColor={tintColor} />
               ),
-              headerRightContainerStyle: {
-                paddingRight: 16,
-              },
               tabBarStyle: {
                 backgroundColor: Colors.primary500,
               },

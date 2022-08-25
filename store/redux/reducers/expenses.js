@@ -13,7 +13,7 @@ const expensesSlice = createSlice({
       const { description, value } = action.payload;
       const expense = new Expense(description, value);
 
-      state.data.push(expense);
+      state.data = [expense, ...state.data];
     },
     update: (state, action) => {
       const { id, description, value } = action.payload;
