@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors } from '../../constants';
 import { CancelButton, IconButton, Input, PrimaryButton } from '../ui';
@@ -11,50 +11,62 @@ export function ExpenseForm({
   onCancel,
   OnDelete,
 }) {
-  const [formValues, setFormValues] = useState({
-    description: initialValues?.description ?? '',
-    value: initialValues?.value ?? '',
+  const [form, setForm] = useState({
+    description: {
+      value: initialValues?.description ?? '',
+      isValid: true,
+    },
+    value: {
+      value: initialValues?.value ?? '',
+      isValid: true,
+    },
   });
 
+  const formIsValid = Object.values(form).every((input) => input.isValid);
+
   function inputHandler(field, enteredText) {
-    setFormValues((currentValues) => ({
+    setForm((currentValues) => ({
       ...currentValues,
-      [field]: enteredText,
+      [field]: { value: enteredText, isValid: true },
     }));
   }
 
   function submitHandler() {
-    if (!formValues.description.length) {
-      return Alert.alert(
-        'Invalid Description',
-        'Expense description must be between (1-50) characters',
-        [{ text: 'Cancel', style: 'destructive' }]
-      );
+    const valueInput = +form.value.value;
+
+    const descriptionIsValid = !!form.description.value.length;
+    const valueIsValid = !(isNaN(valueInput) || valueInput <= 0);
+
+    if (!descriptionIsValid || !valueIsValid) {
+      setForm((currentForm) => ({
+        description: {
+          value: currentForm.description.value,
+          isValid: descriptionIsValid,
+        },
+        value: {
+          value: currentForm.value.value,
+          isValid: valueIsValid,
+        },
+      }));
+
+      return;
     }
 
-    const valueInput = parseFloat(formValues.value);
-    if (isNaN(valueInput) || valueInput <= 0) {
-      return Alert.alert(
-        'Invalid Value',
-        'Expense value must be greater than zero',
-        [{ text: 'Cancel', style: 'destructive' }]
-      );
-    }
-
-    onSave({ description: formValues.description, value: valueInput });
+    onSave({ description: form.description.value, value: valueInput });
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.inputsContainer}>
+      <View>
         <Input
           label='Description'
           inputTextConfig={{
             maxLength: 50,
             placeholder: 'Enter expense description...',
             autoCorrect: false,
-            value: formValues.description,
+            value: form.description.value,
           }}
+          isInvalid={!form.description.isValid}
           onChangeText={inputHandler.bind(this, 'description')}
         />
         <Input
@@ -62,11 +74,17 @@ export function ExpenseForm({
           inputTextConfig={{
             placeholder: 'Enter expense value...',
             keyboardType: 'decimal-pad',
-            value: formValues.value,
+            value: form.value.value,
           }}
+          isInvalid={!form.value.isValid}
           onChangeText={inputHandler.bind(this, 'value')}
         />
       </View>
+      {!formIsValid && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Please check the entered data..!</Text>
+        </View>
+      )}
       <View style={styles.actionsContainer}>
         <PrimaryButton onPress={submitHandler}>Save</PrimaryButton>
         <CancelButton onPress={onCancel}>Cancel</CancelButton>
@@ -89,7 +107,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 16,
   },
-  inputsContainer: {},
+  errorContainer: {
+    marginBottom: 8,
+  },
+  errorText: {
+    textAlign: 'center',
+    fontSize: 20,
+    color: Colors.error500,
+  },
   actionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
