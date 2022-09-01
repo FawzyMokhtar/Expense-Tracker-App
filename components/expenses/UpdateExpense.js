@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Alert, Modal, StyleSheet, Text, View } from 'react-native';
 
 import { useDispatch } from 'react-redux';
@@ -8,40 +7,18 @@ import { Colors } from '../../constants';
 import { ExpensesActions } from '../../store';
 
 export function UpdateExpense({ visible, expense, onCancel }) {
-  const [formValue, setFormValue] = useState({
-    description: expense.description,
-    value: expense.value.toString(),
-  });
-
   const dispatch = useDispatch();
+  const formInitialValues = {
+    description: expense.description,
+    value: expense.value.toFixed(2),
+  };
 
-  function formValueHandler(value) {
-    setFormValue(value);
-  }
-
-  function saveHandler() {
-    if (!formValue.description.length) {
-      return Alert.alert(
-        'Invalid Description',
-        'Expense description must be between (1-50) characters',
-        [{ text: 'Cancel', style: 'destructive' }]
-      );
-    }
-
-    const valueInput = parseFloat(formValue.value);
-    if (isNaN(valueInput) || valueInput <= 0) {
-      return Alert.alert(
-        'Invalid Value',
-        'Expense value must be greater than zero',
-        [{ text: 'Cancel', style: 'destructive' }]
-      );
-    }
-
+  function saveHandler({ description, value }) {
     dispatch(
       ExpensesActions.update({
         id: expense.id,
-        description: formValue.description,
-        value: valueInput,
+        description,
+        value,
       })
     );
 
@@ -71,9 +48,8 @@ export function UpdateExpense({ visible, expense, onCancel }) {
           <Text style={styles.headerText}>Update Expense</Text>
         </View>
         <ExpenseForm
-          value={formValue}
+          initialValues={formInitialValues}
           allowDelete={true}
-          onChange={formValueHandler}
           onSave={saveHandler}
           onCancel={onCancel}
           OnDelete={deleteHandler}

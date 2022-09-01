@@ -1,32 +1,47 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Colors } from '../../constants';
 import { CancelButton, IconButton, Input, PrimaryButton } from '../ui';
 
 export function ExpenseForm({
-  value,
+  initialValues,
   allowDelete = false,
-  onChange,
   onSave,
   onCancel,
   OnDelete,
 }) {
   const [formValues, setFormValues] = useState({
-    description: value?.description ?? '',
-    value: value?.value ?? '',
+    description: initialValues?.description ?? '',
+    value: initialValues?.value ?? '',
   });
 
   function inputHandler(field, enteredText) {
-    setFormValues((currentValues) => {
-      const newValue = {
-        ...currentValues,
-        [field]: enteredText,
-      };
+    setFormValues((currentValues) => ({
+      ...currentValues,
+      [field]: enteredText,
+    }));
+  }
 
-      onChange(newValue);
-      return newValue;
-    });
+  function submitHandler() {
+    if (!formValues.description.length) {
+      return Alert.alert(
+        'Invalid Description',
+        'Expense description must be between (1-50) characters',
+        [{ text: 'Cancel', style: 'destructive' }]
+      );
+    }
+
+    const valueInput = parseFloat(formValues.value);
+    if (isNaN(valueInput) || valueInput <= 0) {
+      return Alert.alert(
+        'Invalid Value',
+        'Expense value must be greater than zero',
+        [{ text: 'Cancel', style: 'destructive' }]
+      );
+    }
+
+    onSave({ description: formValues.description, value: valueInput });
   }
 
   return (
@@ -53,7 +68,7 @@ export function ExpenseForm({
         />
       </View>
       <View style={styles.actionsContainer}>
-        <PrimaryButton onPress={onSave}>Save</PrimaryButton>
+        <PrimaryButton onPress={submitHandler}>Save</PrimaryButton>
         <CancelButton onPress={onCancel}>Cancel</CancelButton>
       </View>
       {allowDelete ? (

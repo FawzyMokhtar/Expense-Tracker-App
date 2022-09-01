@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Alert, Modal, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { useDispatch } from 'react-redux';
 
@@ -8,40 +7,15 @@ import { Colors } from '../../constants';
 import { ExpensesActions } from '../../store';
 
 export function CreateExpense({ visible, onCancel }) {
-  const [formValue, setFormValue] = useState({ description: '', value: '' });
-
   const dispatch = useDispatch();
 
-  function formValueHandler(value) {
-    setFormValue(value);
-  }
-
-  function saveHandler() {
-    if (!formValue.description.length) {
-      return Alert.alert(
-        'Invalid Description',
-        'Expense description must be between (1-50) characters',
-        [{ text: 'Cancel', style: 'destructive' }]
-      );
-    }
-
-    const valueInput = parseFloat(formValue.value);
-    if (isNaN(valueInput) || valueInput <= 0) {
-      return Alert.alert(
-        'Invalid Value',
-        'Expense value must be greater than zero',
-        [{ text: 'Cancel', style: 'destructive' }]
-      );
-    }
-
+  function saveHandler({ description, value }) {
     dispatch(
       ExpensesActions.create({
-        description: formValue.description,
-        value: valueInput,
+        description,
+        value,
       })
     );
-    setDescription('');
-    setValue('');
 
     onCancel();
   }
@@ -56,12 +30,7 @@ export function CreateExpense({ visible, onCancel }) {
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>Add Expense</Text>
         </View>
-        <ExpenseForm
-          value={formValue}
-          onChange={formValueHandler}
-          onSave={saveHandler}
-          onCancel={onCancel}
-        />
+        <ExpenseForm onSave={saveHandler} onCancel={onCancel} />
       </View>
     </Modal>
   );
