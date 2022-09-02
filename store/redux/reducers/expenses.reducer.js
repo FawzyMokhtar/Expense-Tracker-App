@@ -40,4 +40,4 @@ export const ExpensesActions = {
   ...expensesSlice.actions,
 };
 
-export default expensesSlice.reducer;
+export const expensesReducer = expensesSlice.reducer;
