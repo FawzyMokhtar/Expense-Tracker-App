@@ -1,18 +1,42 @@
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import NumberFormat from 'react-number-format';
 import moment from 'moment';
 
-import { ExpensesList } from '../components';
+import { ErrorOverlay, ExpensesList, LoadingOverlay } from '../components';
 import { Colors } from '../constants';
-import { ExpensesSelectors } from '../store';
+import { ExpensesActions, ExpensesSelectors } from '../store';
+import { ExpensesService } from '../services';
 
 function isWithinSevenDays(date) {
   return moment(date).isAfter(moment().subtract(7, 'days'));
 }
 
 export function RecentExpenses() {
+  const [isFetchingData, setIsFetchingData] = useState(true);
+  const [error, setError] = useState('');
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function getExpenses() {
+      setIsFetchingData(true);
+
+      try {
+        const data = await ExpensesService.loadAll();
+        dispatch(ExpensesActions.load(data));
+      } catch (error) {
+        setError(`Couldn't load expenses.`);
+      }
+
+      setIsFetchingData(false);
+    }
+
+    getExpenses();
+  }, []);
+
   const expenses = useSelector(ExpensesSelectors.getExpenses).filter(
     (expense) => isWithinSevenDays(expense.createdAt)
   );
@@ -20,6 +44,12 @@ export function RecentExpenses() {
   const expensesTotal = expenses
     .map((expense) => expense.value)
     .reduce((previous, current) => previous + current, 0);
+
+  if (error && !isFetchingData) {
+    return <ErrorOverlay message={error} onDismiss={() => setError(null)} />;
+  } else if (isFetchingData) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <View style={styles.container}>

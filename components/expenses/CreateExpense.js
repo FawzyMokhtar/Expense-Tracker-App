@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { useDispatch } from 'react-redux';
@@ -5,19 +6,40 @@ import { useDispatch } from 'react-redux';
 import { ExpenseForm } from './ExpenseForm';
 import { Colors } from '../../constants';
 import { ExpensesActions } from '../../store';
+import { ExpensesService } from '../../services';
+import { ErrorOverlay, LoadingOverlay } from '../ui';
 
 export function CreateExpense({ visible, onCancel }) {
+  const [isSubmittingData, setIsSubmittingData] = useState(false);
+  const [error, setError] = useState('');
+
   const dispatch = useDispatch();
 
-  function saveHandler({ description, value }) {
-    dispatch(
-      ExpensesActions.create({
-        description,
-        value,
-      })
-    );
+  async function saveHandler(data) {
+    setIsSubmittingData(true);
+    try {
+      const newExpense = await ExpensesService.create(data);
+      dispatch(ExpensesActions.create(newExpense));
+      onCancel();
+    } catch (error) {
+      setError(`Couldn't create the new expense.`);
+    }
+    setIsSubmittingData(false);
+  }
 
-    onCancel();
+  let content = (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Add Expense</Text>
+      </View>
+      <ExpenseForm onSave={saveHandler} onCancel={onCancel} />
+    </View>
+  );
+
+  if (error && !isSubmittingData) {
+    content = <ErrorOverlay message={error} onDismiss={() => setError(null)} />;
+  } else if (isSubmittingData) {
+    content = <LoadingOverlay />;
   }
 
   return (
@@ -26,12 +48,7 @@ export function CreateExpense({ visible, onCancel }) {
       animationType='slide'
       presentationStyle='pageSheet'
     >
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Add Expense</Text>
-        </View>
-        <ExpenseForm onSave={saveHandler} onCancel={onCancel} />
-      </View>
+      {content}
     </Modal>
   );
 }

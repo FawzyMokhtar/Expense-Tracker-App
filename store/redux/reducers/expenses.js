@@ -1,27 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { EXPENSES } from '../../../data';
-import { Expense } from '../../../models';
-
 const expensesSlice = createSlice({
   name: 'expenses',
   initialState: {
-    data: EXPENSES,
+    data: [],
   },
   reducers: {
+    load: (state, action) => {
+      state.data = [...action.payload.reverse()];
+    },
     create: (state, action) => {
-      const { description, value } = action.payload;
-      const expense = new Expense(description, value);
-
-      state.data = [expense, ...state.data];
+      state.data = [action.payload, ...state.data];
     },
     update: (state, action) => {
       const { id, description, value } = action.payload;
       const expenseIndex = state.data.findIndex((expense) => expense.id === id);
 
       if (expenseIndex !== -1) {
+        const expense = state.data[expenseIndex];
         state.data[expenseIndex] = {
-          id,
+          ...expense,
           description,
           value,
         };
@@ -39,9 +37,7 @@ const expensesSlice = createSlice({
 });
 
 export const ExpensesActions = {
-  create: expensesSlice.actions.create,
-  update: expensesSlice.actions.update,
-  delete: expensesSlice.actions.delete,
+  ...expensesSlice.actions,
 };
 
 export default expensesSlice.reducer;
